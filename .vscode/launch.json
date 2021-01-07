@@ -5,9 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Home Assistant",
+       "name": "Home Assistant",
       "type": "python",
       "request": "launch",
+      "justMyCode": false,
       "module": "homeassistant",
       "args": [
         "--debug",
