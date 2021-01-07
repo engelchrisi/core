@@ -3,7 +3,7 @@ from datetime import timedelta
 import logging
 from typing import Callable, NamedTuple
 
-from pyHS100 import SmartDeviceException
+from kasa import SmartDeviceException
 import pytest
 
 from homeassistant.components import tplink

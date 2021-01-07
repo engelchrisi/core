@@ -5,7 +5,7 @@ import logging
 import time
 from typing import Any, Dict, NamedTuple, Tuple, cast
 
-from pyHS100 import SmartBulb, SmartDeviceException
+from kasa import SmartBulb, SmartDeviceException
 
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,

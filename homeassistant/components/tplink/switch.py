@@ -3,7 +3,7 @@ import asyncio
 import logging
 import time
 
-from pyHS100 import SmartDeviceException, SmartPlug
+from kasa import SmartDeviceException, SmartPlug
 
 from homeassistant.components.switch import (
     ATTR_CURRENT_POWER_W,
@@ -104,20 +104,17 @@ class SmartPlugSwitch(SwitchEntity):
         """Return the state attributes of the device."""
         return self._emeter_params
 
-    @property
-    def _plug_from_context(self):
-        """Return the plug from the context."""
-        children = self.smartplug.sys_info["children"]
-        return next(c for c in children if c["id"] == self.smartplug.context)
+    # @property
+    # def _plug_from_context(self):
+    #     """Return the plug from the context."""
+    #     children = self.smartplug.sys_info["children"]
+    #     return next(c for c in children if c["id"] == self.smartplug.context)
 
     def update_state(self):
         """Update the TP-Link switch's state."""
-        if self.smartplug.context is None:
-            self._state = self.smartplug.state == self.smartplug.SWITCH_STATE_ON
-        else:
-            self._state = self._plug_from_context["state"] == 1
+        self._state = self.smartplug.is_on
 
-    def attempt_update(self, update_attempt):
+    async def attempt_update(self, update_attempt):
         """Attempt to get details from the TP-Link switch."""
         try:
             if not self._sysinfo:
@@ -125,17 +122,13 @@ class SmartPlugSwitch(SwitchEntity):
                 self._mac = self._sysinfo["mac"]
                 self._model = self._sysinfo["model"]
                 self._host = self.smartplug.host
-                if self.smartplug.context is None:
-                    self._alias = self._sysinfo["alias"]
-                    self._device_id = self._mac
-                else:
-                    self._alias = self._plug_from_context["alias"]
-                    self._device_id = self.smartplug.context
+                self._alias = self.smartplug.alias
+                self._device_id = self.smartplug.mac
 
             self.update_state()
 
             if self.smartplug.has_emeter:
-                emeter_readings = self.smartplug.get_emeter_realtime()
+                emeter_readings = await self.smartplug.get_emeter_realtime()
 
                 self._emeter_params[ATTR_CURRENT_POWER_W] = "{:.2f}".format(
                     emeter_readings["power"]

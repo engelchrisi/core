@@ -1224,9 +1224,6 @@ pyCEC==0.4.14
 # homeassistant.components.control4
 pyControl4==0.0.6
 
-# homeassistant.components.tplink
-pyHS100==0.3.5.2
-
 # homeassistant.components.met
 # homeassistant.components.norway_air
 pyMetno==0.8.1
@@ -1772,6 +1769,9 @@ python-join-api==0.0.6
 
 # homeassistant.components.juicenet
 python-juicenet==1.0.1
+
+# homeassistant.components.tplink
+python-kasa==0.4.0.dev2
 
 # homeassistant.components.lirc
 # python-lirc==1.2.3

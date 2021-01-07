@@ -2,7 +2,7 @@
 import logging
 from typing import List
 
-from pyHS100 import (
+from kasa import (
     Discover,
     SmartBulb,
     SmartDevice,
@@ -59,7 +59,9 @@ async def async_get_discoverable_devices(hass):
     """Return if there are devices that can be discovered."""
 
     def discover():
-        devs = Discover.discover()
+        _LOGGER.warn("Before Discover.discover")
+        devs = Discover.discover(return_raw=True)
+        # _LOGGER.warn("After Discover.discover: %s", devs)
         return devs
 
     return await hass.async_add_executor_job(discover)
@@ -70,8 +72,8 @@ async def async_discover_devices(
 ) -> SmartDevices:
     """Get devices through discovery."""
     _LOGGER.debug("Discovering devices")
-    devices = await async_get_discoverable_devices(hass)
-    _LOGGER.info("Discovered %s TP-Link smart home device(s)", len(devices))
+    devices = await Discover.discover(return_raw=False)
+    # _LOGGER.info("Discovered %s TP-Link smart home device(s)", len(devices))
 
     lights = []
     switches = []
@@ -131,8 +133,9 @@ def get_static_devices(config_data) -> SmartDevices:
     return SmartDevices(lights, switches)
 
 
-def add_available_devices(hass, device_type, device_class):
+async def add_available_devices(hass, device_type, device_class):
     """Get sysinfo for all devices."""
+    _LOGGER.warn("add_available_devices")
 
     devices = hass.data[TPLINK_DOMAIN][device_type]
 
@@ -143,7 +146,7 @@ def add_available_devices(hass, device_type, device_class):
     devices_unavailable = []
     for device in devices:
         try:
-            device.get_sysinfo()
+            await device.get_sys_info()
             entities_ready.append(device_class(device))
         except SmartDeviceException as ex:
             devices_unavailable.append(device)
@@ -154,4 +157,5 @@ def add_available_devices(hass, device_type, device_class):
             )
 
     hass.data[TPLINK_DOMAIN][f"{device_type}_remaining"] = devices_unavailable
+    _LOGGER.warn("EOF add_available_devices")
     return entities_ready
